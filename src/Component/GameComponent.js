@@ -17,8 +17,8 @@ const GameComponent = () => {
   const [betAmount, setBetAmount] = useState(0);
   const [userId, setUserId] = useState(0);
 
-  const tokenContractAddress = process.env.REACT_APP__TOKEN_ADDRESS;
-  const gameContractAddress = process.env.REACT_APP__GAME_ADDRESS;
+  const tokenContractAddress = process.env.REACT_APP_TOKEN_ADDRESS;
+  const gameContractAddress = process.env.REACT_APP_GAME_ADDRESS;
   const web3Instance = new Web3(window.ethereum);
   const tokenContractInstance = new web3Instance.eth.Contract(StandardTokenABI, tokenContractAddress);
 
