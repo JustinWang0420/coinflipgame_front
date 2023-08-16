@@ -140,18 +140,18 @@ const GameComponent = () => {
   //   }
   // };
 
-  useEffect(() => {
-    if (!connected) {
-      connectWallet();
-    } else {
-      getBalances(web3Instance, tokenContractInstance);
-      decodeData(hashdata);
-    }
-  }, [connected]);
+  // useEffect(() => {
+  //   if (!connected) {
+  //     connectWallet();
+  //   } else {
+  //     getBalances(web3Instance, tokenContractInstance);
+  //     decodeData(hashdata);
+  //   }
+  // }, [connected]);
 
-  useEffect(() => {
-    sendTransaction();
-  }, [betAmount, userId])
+  // useEffect(() => {
+  //   sendTransaction();
+  // }, [betAmount, userId])
 
   return (
     <div className="token-game-container">
