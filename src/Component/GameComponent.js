@@ -113,11 +113,11 @@ const GameComponent = () => {
     // console.log(betAmountWei, "betamountwei")
     // Sign and send the transaction
     try {
-      const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, Number(betAmount)).send({ from: userAccount });
+      const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount });
       console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
 
       // Send Token to Gameplay Function on Game Contract
-      const transactionResponse = await gameContractInstance.methods.playGame(Number(betAmount), userId).send({ from: userAccount, gasPrice: 3000000 });
+      const transactionResponse = await gameContractInstance.methods.playGame(betAmount.toString(), userId).send({ from: userAccount, gasPrice: 3000000 });
       console.log('Transaction hash:', transactionResponse.transactionHash);
     } catch (error) {
       console.error('Error sending transaction:', error);
