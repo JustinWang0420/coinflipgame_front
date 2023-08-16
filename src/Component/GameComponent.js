@@ -110,15 +110,15 @@ const GameComponent = () => {
     // Create a contract instance
     const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
     console.log(betAmount, "betAmount")
-    const betAmountWei = web3Instance.utils.toWei((Number(betAmount * 10 ** 18)).toString(), 'wei');
-    console.log(betAmountWei, "betamountwei")
+    // const betAmountWei = web3Instance.utils.toWei((Number(betAmount * 10 ** 18)).toString(), 'wei');
+    // console.log(betAmountWei, "betamountwei")
     // Sign and send the transaction
     try {
-      const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmountWei).send({ from: userAccount });
+      const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount).send({ from: userAccount });
       console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
 
       // Send Token to Gameplay Function on Game Contract
-      const transactionResponse = await gameContractInstance.methods.playGame(betAmountWei, userId).send({ from: userAccount, gasPrice: 3000000 });
+      const transactionResponse = await gameContractInstance.methods.playGame(betAmount, userId).send({ from: userAccount, gasPrice: 3000000 });
       console.log('Transaction hash:', transactionResponse.transactionHash);
     } catch (error) {
       console.error('Error sending transaction:', error);
