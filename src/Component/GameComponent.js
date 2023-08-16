@@ -99,7 +99,6 @@ const GameComponent = () => {
     }
   };
 
-
   async function sendTransaction() {
     if (betAmount === 0 || userId === 0) return;
 
@@ -110,7 +109,7 @@ const GameComponent = () => {
     // Create a contract instance
     const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
     console.log(betAmount, "betAmount")
-    const betAmountWei = web3Instance.utils.toWei((Number(betAmount * 10 ** 18)).toString(), 'wei');
+    const betAmountWei = web3Instance.utils.toWei((betAmount * 10 ** 18).toString(), 'wei');
     console.log(betAmountWei, "betamountwei")
     // Sign and send the transaction
     try {
