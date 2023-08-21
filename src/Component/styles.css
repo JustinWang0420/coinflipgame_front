@@ -1,5 +1,10 @@
 /* TokenCoinFlipGame.css */
 
+@font-face {
+  font-family: Dreamscapesans;
+  src: url(../assets/font/Dreamscape\ Sans.ttf);
+}
+
 .token-game-container {
   display: flex;
   flex-direction: column;
@@ -10,7 +15,7 @@
   background-size: cover;
   background-position: center;
   color: black;
-  font-family: Arial, sans-serif;
+  font-family: Dreamscapesans;
 }
 
 .button-container {

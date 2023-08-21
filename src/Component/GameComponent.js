@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Web3 } from "web3";
 import { Buffer } from "buffer";
 import './styles.css'; // Make sure to import your CSS file
+import { disconnect } from "process";
 
 const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.json")
 const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.json")
@@ -64,6 +65,20 @@ const GameComponent = () => {
       }
     } else {
       alert('Install MetaMask extension!');
+    }
+  };
+
+  const disconnectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        // Hide connected section
+        const sectionConnected = document.getElementById('section-connected');
+        sectionConnected.classList = 'hidden';
+        setConnected(false);
+        setAddress(null);
+      } catch (error) {
+        console.error('Error disconnecting wallet:', error);
+      }
     }
   };
 
@@ -166,6 +181,7 @@ const GameComponent = () => {
             <p className="account-title">Connected to Account: <b>{address}</b></p>
             <p className="balance">Ether Balance: {web3Instance ? web3Instance.utils.fromWei(etherBalance, 'ether') : <span className="loading">Loading...</span>}</p>
             <p className="balance">Token Balance: {web3Instance ? web3Instance.utils.fromWei(tokenBalance, 'ether') : <span className="loading">Loading...</span>}</p>
+            <button onClick={disconnectWallet}>Disconnect</button>
           </div>
         )}
       </div>
