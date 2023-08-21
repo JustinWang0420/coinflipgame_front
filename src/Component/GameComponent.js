@@ -172,7 +172,7 @@ const GameComponent = () => {
 
   return (
     <div className="token-game-container">
-      <h1>Token CoinFlip Game</h1>
+      <h1 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>SCROTO HUNT GAME</h1>
       <div className="button-container">
         {!connected ? (
           <button onClick={connectWallet}>Connect Wallet</button>
