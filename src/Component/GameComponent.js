@@ -104,7 +104,7 @@ const GameComponent = () => {
 
       // Check if userId and betAmount are valid numbers
       if (!isNaN(userId) && !isNaN(betAmount)) {
-        const _userId = web3.utils.toBN(userId).toString();
+        const _userId = web3Instance.utils.toBN(userId).toString();
         setUserId(_userId);
         setBetAmount(betAmount);
       } else {
