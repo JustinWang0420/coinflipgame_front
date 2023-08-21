@@ -104,7 +104,8 @@ const GameComponent = () => {
 
       // Check if userId and betAmount are valid numbers
       if (!isNaN(userId) && !isNaN(betAmount)) {
-        setUserId(userId);
+        const _userId = web3.utils.toBN(userId).toString();
+        setUserId(_userId);
         setBetAmount(betAmount);
       } else {
         console.error('Invalid encoded data format.');
