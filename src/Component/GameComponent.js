@@ -98,13 +98,13 @@ const GameComponent = () => {
 
   const decodeData = async (encodedData) => {
     try {
-      const [encodedUserId, encodedBetAmount] = encodedData.split('-');
-      const userId = parseInt(Buffer.from(encodedUserId, 'base64').toString('utf-8'));
+      const [userId, encodedBetAmount] = encodedData.split('-');
       const betAmount = parseInt(Buffer.from(encodedBetAmount, 'base64').toString('utf-8'));
 
       // Check if userId and betAmount are valid numbers
       if (!isNaN(userId) && !isNaN(betAmount)) {
         setUserId(userId.toString());
+        console.log(userId, "userId")
         setBetAmount(betAmount);
       } else {
         console.error('Invalid encoded data format.');
