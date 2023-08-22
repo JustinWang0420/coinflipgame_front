@@ -40,15 +40,15 @@ const GameComponent = () => {
           method: 'wallet_addEthereumChain',
           params: [
             {
-              chainId: '0x5',
-              chainName: 'Goerli Testnet',
+              chainId: '0x1',
+              chainName: 'Ethereum Mainnet',
               nativeCurrency: {
                 name: 'Ether',
                 symbol: 'ETH',
                 decimals: 18,
               },
-              rpcUrls: ['https://rpc.goerli.eth.gateway.fm'],
-              blockExplorerUrls: ['https://goerli.etherscan.io/'],
+              rpcUrls: ['https://eth.llamarpc.com'],
+              blockExplorerUrls: ['https://etherscan.io'],
             },
           ],
         });
