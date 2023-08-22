@@ -6,7 +6,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/:hashdata" element={<GameComponent />} />
+        <Route path="/:userId" element={<GameComponent />} />
       </Routes>
     </Router>
   );

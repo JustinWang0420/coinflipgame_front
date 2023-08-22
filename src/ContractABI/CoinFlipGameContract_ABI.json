@@ -21,6 +21,11 @@
           "internalType": "uint256",
           "name": "_winningChance",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_betAmount",
+          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
@@ -36,13 +41,13 @@
           "type": "address"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "uint256",
           "name": "betAmount",
           "type": "uint256"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "bool",
           "name": "win",
           "type": "bool"
@@ -55,13 +60,26 @@
         },
         {
           "indexed": false,
-          "internalType": "int256",
+          "internalType": "uint256",
           "name": "userId",
-          "type": "int256"
+          "type": "uint256"
         }
       ],
       "name": "GameResult",
       "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "betAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -112,16 +130,37 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "betAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "int256",
           "name": "userId",
-          "type": "int256"
+          "type": "uint256"
         }
       ],
       "name": "playGame",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_betAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBetAmount",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_housePercentage",
+          "type": "uint256"
+        }
+      ],
+      "name": "setHousePercentage",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

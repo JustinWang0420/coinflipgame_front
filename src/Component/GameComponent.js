@@ -9,14 +9,13 @@ const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.jso
 const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.json")
 
 const GameComponent = () => {
-  const { hashdata } = useParams();
+  const { userId } = useParams();
 
   const [connected, setConnected] = useState(false);
   const [address, setAddress] = useState("");
   const [etherBalance, setEtherBalance] = useState('');
   const [tokenBalance, setTokenBalance] = useState('');
-  const [betAmount, setBetAmount] = useState(0);
-  const [userId, setUserId] = useState(0);
+  // const [userId, setUserId] = useState(0);
 
   const tokenContractAddress = process.env.REACT_APP_TOKEN_ADDRESS;
   const gameContractAddress = process.env.REACT_APP_GAME_ADDRESS;
@@ -96,26 +95,26 @@ const GameComponent = () => {
     }
   };
 
-  const decodeData = async (encodedData) => {
-    try {
-      const [userId, encodedBetAmount] = encodedData.split('-');
-      const betAmount = parseInt(Buffer.from(encodedBetAmount, 'base64').toString('utf-8'));
+  // const decodeData = async (encodedData) => {
+  //   try {
+  //     const [userId, encodedBetAmount] = encodedData.split('-');
+  //     const betAmount = parseInt(Buffer.from(encodedBetAmount, 'base64').toString('utf-8'));
 
-      // Check if userId and betAmount are valid numbers
-      if (!isNaN(userId) && !isNaN(betAmount)) {
-        setUserId(userId.toString());
-        console.log(userId, "userId")
-        setBetAmount(betAmount);
-      } else {
-        console.error('Invalid encoded data format.');
-      }
-    } catch (error) {
-      console.error('Error decoding data:', error);
-    }
-  };
+  //     // Check if userId and betAmount are valid numbers
+  //     if (!isNaN(userId) && !isNaN(betAmount)) {
+  //       setUserId(userId.toString());
+  //       console.log(userId, "userId")
+  //       setBetAmount(betAmount);
+  //     } else {
+  //       console.error('Invalid encoded data format.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error decoding data:', error);
+  //   }
+  // };
 
   async function sendTransaction() {
-    if (betAmount === 0 || userId === 0) return;
+    if (userId === 0) return;
 
     // Get the user's selected account
     // const accounts = await web3.eth.getAccounts();
@@ -123,16 +122,18 @@ const GameComponent = () => {
 
     // Create a contract instance
     const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
-    console.log(betAmount, "betAmount")
+    const betAmountValue = await gameContractInstance.methods.betAmount().call();
+    console.log(betAmountValue, "betAmount")
+    // console.log(betAmount, "betAmount")
     // const betAmountWei = web3Instance.utils.toWei((betAmount * 10 ** 18).toString(), 'wei');
     // console.log(betAmountWei, "betamountwei")
     // Sign and send the transaction
     try {
-      const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount });
+      const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmountValue.toString()).send({ from: userAccount });
       console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
 
       // Send Token to Gameplay Function on Game Contract
-      const transactionResponse = await gameContractInstance.methods.playGame(betAmount.toString(), userId).send({ from: userAccount, gasPrice: 3000000 });
+      const transactionResponse = await gameContractInstance.methods.playGame(betAmountValue.toString(), userId).send({ from: userAccount, gasPrice: 3000000 });
       console.log('Transaction hash:', transactionResponse.transactionHash);
 
       // Close the current window or tab
@@ -162,13 +163,12 @@ const GameComponent = () => {
       connectWallet();
     } else {
       getBalances(web3Instance, tokenContractInstance);
-      decodeData(hashdata);
     }
   }, [connected]);
 
   useEffect(() => {
     sendTransaction();
-  }, [betAmount, userId])
+  }, [userId])
 
   return (
     <div className="token-game-container">
