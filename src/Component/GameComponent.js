@@ -103,8 +103,12 @@ const GameComponent = () => {
     const userAccount = address;
 
     // Create a contract instance
+    console.log(gameContractAddress)
     const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
+    console.log(gameContractInstance)
     const betAmountValue = await gameContractInstance.methods.betAmount().call();
+    
+    alert(betAmountValue)
     console.log(betAmountValue, "betAmount")
     // console.log(betAmount, "betAmount")
     // const betAmountWei = web3Instance.utils.toWei((betAmount * 10 ** 18).toString(), 'wei');
@@ -115,7 +119,7 @@ const GameComponent = () => {
       console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
 
       // Send Token to Gameplay Function on Game Contract
-      const transactionResponse = await gameContractInstance.methods.playGame(betAmountValue.toString(), userId).send({ from: userAccount, gasPrice: 3000000 });
+      const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: 3000000 });
       console.log('Transaction hash:', transactionResponse.transactionHash);
 
       // Close the current window or tab
@@ -145,12 +149,9 @@ const GameComponent = () => {
       connectWallet();
     } else {
       getBalances(web3Instance, tokenContractInstance);
+      // sendTransaction();
     }
   }, [connected]);
-
-  useEffect(() => {
-    sendTransaction();
-  }, [userId])
 
   return (
     <div className="token-game-container">
@@ -163,7 +164,7 @@ const GameComponent = () => {
             <p className="account-title">Connected to Account: <b>{address}</b></p>
             <p className="balance">Ether Balance: {web3Instance ? web3Instance.utils.fromWei(etherBalance, 'ether') : <span className="loading">Loading...</span>}</p>
             <p className="balance">Token Balance: {web3Instance ? web3Instance.utils.fromWei(tokenBalance, 'ether') : <span className="loading">Loading...</span>}</p>
-            <button onClick={disconnectWallet}>Disconnect</button>
+            <button onClick={sendTransaction}>Scroto</button>
           </div>
         )}
       </div>
