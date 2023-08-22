@@ -15,12 +15,13 @@ const GameComponent = () => {
   const [address, setAddress] = useState("");
   const [etherBalance, setEtherBalance] = useState('');
   const [tokenBalance, setTokenBalance] = useState('');
-  // const [userId, setUserId] = useState(0);
+  const [betAmount, setBetAmount] = useState(0);
 
   const tokenContractAddress = process.env.REACT_APP_TOKEN_ADDRESS;
   const gameContractAddress = process.env.REACT_APP_GAME_ADDRESS;
   const web3Instance = new Web3(window.ethereum);
   const tokenContractInstance = new web3Instance.eth.Contract(StandardTokenABI, tokenContractAddress);
+  const uniswapUrl = 'https://app.uniswap.org/#/swap?outputCurrency=0xc32db1d3282e872d98f6437d3bcfa57801ca6d5c';
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -94,6 +95,11 @@ const GameComponent = () => {
       }
     }
   };
+  async function init() {
+    const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
+    const betAmountValue = await gameContractInstance.methods.betAmount().call();
+    setBetAmount(betAmountValue);
+  }
 
   async function sendTransaction() {
     if (userId === 0) return;
@@ -104,16 +110,15 @@ const GameComponent = () => {
 
     // Create a contract instance
     const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
-    const betAmountValue = await gameContractInstance.methods.betAmount().call();
 
     // console.log(betAmount, "betAmount")
     // const betAmountWei = web3Instance.utils.toWei((betAmount * 10 ** 18).toString(), 'wei');
     // console.log(betAmountWei, "betamountwei")
     // Sign and send the transaction
     try {
-      const approvedAmount = await tokenContractInstance.methods.allowance(address, gameContractAddress).call();
-      if (betAmountValue > approvedAmount) {
-        const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmountValue.toString()).send({ from: userAccount });
+      const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
+      if (betAmount > approvedAmount) {
+        const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount });
         console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
       }
 
@@ -146,7 +151,7 @@ const GameComponent = () => {
       connectWallet();
     } else {
       getBalances(web3Instance, tokenContractInstance);
-      // sendTransaction();
+      init();
     }
   }, [connected]);
 
@@ -161,7 +166,8 @@ const GameComponent = () => {
             <p className="account-title">Connected to Account: <b>{address}</b></p>
             <p className="balance">Ether Balance: {web3Instance ? web3Instance.utils.fromWei(etherBalance, 'ether') : <span className="loading">Loading...</span>}</p>
             <p className="balance">Token Balance: {web3Instance ? web3Instance.utils.fromWei(tokenBalance, 'ether') : <span className="loading">Loading...</span>}</p>
-            <button onClick={sendTransaction}>Scroto</button>
+            {tokenBalance > betAmount ? <button onClick={sendTransaction}>Scroto</button> :
+              <a className="BuyVRT" href={uniswapUrl} target="_blank" rel="noopener noreferrer">Buy VRT</a>}
           </div>
         )}
       </div>
