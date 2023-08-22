@@ -95,24 +95,6 @@ const GameComponent = () => {
     }
   };
 
-  // const decodeData = async (encodedData) => {
-  //   try {
-  //     const [userId, encodedBetAmount] = encodedData.split('-');
-  //     const betAmount = parseInt(Buffer.from(encodedBetAmount, 'base64').toString('utf-8'));
-
-  //     // Check if userId and betAmount are valid numbers
-  //     if (!isNaN(userId) && !isNaN(betAmount)) {
-  //       setUserId(userId.toString());
-  //       console.log(userId, "userId")
-  //       setBetAmount(betAmount);
-  //     } else {
-  //       console.error('Invalid encoded data format.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error decoding data:', error);
-  //   }
-  // };
-
   async function sendTransaction() {
     if (userId === 0) return;
 
