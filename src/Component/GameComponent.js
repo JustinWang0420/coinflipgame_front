@@ -121,8 +121,6 @@ const GameComponent = () => {
       const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: 3000000 });
       console.log('Transaction hash:', transactionResponse.transactionHash);
 
-      // Close the current window or tab
-      window.close();
     } catch (error) {
       console.error('Error sending transaction:', error);
     }
