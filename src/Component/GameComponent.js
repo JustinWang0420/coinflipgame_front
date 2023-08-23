@@ -37,7 +37,7 @@ const GameComponent = () => {
     // gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
 
     try {
-      const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, teamAddress).call();
+      const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
       if (betAmount > approvedAmount) {
         const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount });
         console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
