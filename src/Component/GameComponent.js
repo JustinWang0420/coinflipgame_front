@@ -149,7 +149,7 @@ const GameComponent = () => {
             <p className="balance">Token Balance: {wallet.tokenBalance}</p>
             <p>Hex ChainId: {wallet.chainId}</p>                       {/* New */}
             <p>Numeric ChainId: {formatChainAsNum(wallet.chainId)}</p> {/* New */}
-            {parseInt(wallet.tokenBalance) > betAmount ? <button onClick={sendTransaction}>Scroto</button> :
+            {parseInt(wallet.tokenBalance) > formatBalance(betAmount) ? <button onClick={sendTransaction}>Scroto</button> :
               <a className="BuyVRT" href={uniswapUrl} target="_blank" rel="noopener noreferrer">Buy VRT</a>}
           </div>
         }
