@@ -34,7 +34,7 @@ const GameComponent = () => {
     const userAccount = wallet.accounts[0];
 
     // Create a contract instance
-    gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
+    // gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
 
     try {
       const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, teamAddress).call();
