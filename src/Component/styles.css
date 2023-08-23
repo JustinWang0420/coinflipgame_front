@@ -21,7 +21,7 @@
 .button-container {
   margin-top: 20px;
   padding: 20px 40px;
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .button-container button {

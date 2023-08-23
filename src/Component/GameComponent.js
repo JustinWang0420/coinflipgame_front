@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Web3 } from "web3";
-import { Buffer } from "buffer";
+import detectEthereumProvider from '@metamask/detect-provider'
+import { formatBalance, formatChainAsNum } from './utils'
+
 import './styles.css'; // Make sure to import your CSS file
-import { disconnect } from "process";
 
 const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.json")
 const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.json")
@@ -11,112 +12,32 @@ const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.json")
 const GameComponent = () => {
   const { userId } = useParams();
 
-  const [connected, setConnected] = useState(false);
-  const [address, setAddress] = useState("");
-  const [etherBalance, setEtherBalance] = useState('');
-  const [tokenBalance, setTokenBalance] = useState('');
+  const [hasProvider, setHasProvider] = useState(null);
+  const initialState = { accounts: [], Etherbalance: "", chainId: "", tokenBalance: "" }  /* Updated */
+  const [wallet, setWallet] = useState(initialState)  /* New */
+
   const [betAmount, setBetAmount] = useState(0);
 
   const tokenContractAddress = process.env.REACT_APP_TOKEN_ADDRESS;
   const gameContractAddress = process.env.REACT_APP_GAME_ADDRESS;
+  const teamAddress = process.env.REACT_APP_TEAM_ADDRESSS;
   const web3Instance = new Web3(window.ethereum);
+
   const tokenContractInstance = new web3Instance.eth.Contract(StandardTokenABI, tokenContractAddress);
+  const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
   const uniswapUrl = 'https://app.uniswap.org/#/swap?outputCurrency=0xc32db1d3282e872d98f6437d3bcfa57801ca6d5c';
-
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        // Check if already connected
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          console.log('Already connected:', accounts[0]);
-          setAddress(accounts[0]);
-          setConnected(true);
-          return;
-        }
-
-        // If not connected, proceed with connection
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: '0x1',
-              chainName: 'Ethereum Mainnet',
-              nativeCurrency: {
-                name: 'Ether',
-                symbol: 'ETH',
-                decimals: 18,
-              },
-              rpcUrls: ['https://eth.llamarpc.com'],
-              blockExplorerUrls: ['https://etherscan.io'],
-            },
-          ],
-        });
-
-        const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setAddress(newAccounts[0]);
-        setConnected(true);
-      } catch (error) {
-        if (error.code === 4001) {
-          console.log('Wallet connection was canceled by the user.');
-        } else {
-          console.error('Error connecting to wallet:', error);
-        }
-      }
-    } else {
-      alert('Install MetaMask extension!');
-    }
-  };
-
-  const disconnectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        // Hide connected section
-        const sectionConnected = document.getElementById('section-connected');
-        sectionConnected.classList = 'hidden';
-        setConnected(false);
-        setAddress(null);
-      } catch (error) {
-        console.error('Error disconnecting wallet:', error);
-      }
-    }
-  };
-
-  const getBalances = async (web3Instance, tokenContract) => {
-
-    if (web3Instance && address && tokenContract) {
-      try {
-        const etherBalance = await web3Instance.eth.getBalance(address);
-        const tokenBalance = await tokenContract.methods.balanceOf(address).call();
-        setEtherBalance(etherBalance);
-        setTokenBalance(tokenBalance);
-      } catch (error) {
-        console.error('Error fetching balances:', error);
-      }
-    }
-  };
-  async function init() {
-    const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
-    const betAmountValue = await gameContractInstance.methods.betAmount().call();
-    setBetAmount(betAmountValue);
-  }
+  const metamaskUrl = 'https://metamask.io/download/';
 
   async function sendTransaction() {
     if (userId === 0) return;
 
-    // Get the user's selected account
-    // const accounts = await web3.eth.getAccounts();
-    const userAccount = address;
+    const userAccount = wallet.accounts[0];
 
     // Create a contract instance
-    const gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
+    gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
 
-    // console.log(betAmount, "betAmount")
-    // const betAmountWei = web3Instance.utils.toWei((betAmount * 10 ** 18).toString(), 'wei');
-    // console.log(betAmountWei, "betamountwei")
-    // Sign and send the transaction
     try {
-      const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
+      const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, teamAddress).call();
       if (betAmount > approvedAmount) {
         const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount });
         console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
@@ -131,45 +52,107 @@ const GameComponent = () => {
     }
   }
 
-  // const playGame = async (amount) => {
-  //   if (!web3) {
-  //     console.error("Web3 provider not available.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const gameContract = new web3.eth.Contract(CoinFlipGameABI, gameContractAddress);
-  //     await gameContract.methods.playgame(amount).send({ from: address });
-  //     console.log("Game played successfully.");
-  //   } catch (error) {
-  //     console.error("Error playing game:", error);
-  //   }
-  // };
-
   useEffect(() => {
-    if (!connected) {
-      connectWallet();
-    } else {
-      getBalances(web3Instance, tokenContractInstance);
-      init();
+    async function getBetAmount() {
+      console.log("getBetAmountValue")
+      try {
+        const betAmountValue = await gameContractInstance.methods.betAmount().call();
+        setBetAmount(betAmountValue);
+        console.log(betAmountValue, "betAmountValue")
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     }
-  }, [connected]);
+
+    const refreshAccounts = (accounts) => {
+      if (accounts.length > 0) {
+        updateWallet(accounts)
+      } else {
+        // if length 0, user is disconnected
+        setWallet(initialState)
+      }
+      getBetAmount()
+    }
+
+    const refreshChain = (chainId) => {               /* New */
+      setWallet((wallet) => ({ ...wallet, chainId }))      /* New */
+    }                                                      /* New */
+
+    const getProvider = async () => {
+      const provider = await detectEthereumProvider({ silent: true })
+      setHasProvider(Boolean(provider))
+
+      if (provider) {
+        const accounts = await window.ethereum.request(
+          { method: 'eth_accounts' }
+        )
+        refreshAccounts(accounts)
+        window.ethereum.on('accountsChanged', refreshAccounts)
+        window.ethereum.on("chainChanged", refreshChain)  /* New */
+      }
+    }
+
+    getProvider()
+
+    return () => {
+      window.ethereum?.removeListener('accountsChanged', refreshAccounts)
+      window.ethereum?.removeListener("chainChanged", refreshChain)  /* New */
+    }
+  }, [])
+
+  const updateWallet = async (accounts) => {
+    const Etherbalance = formatBalance(await window.ethereum.request({   /* New */
+      method: "eth_getBalance",                                      /* New */
+      params: [accounts[0], "latest"],                               /* New */
+    }))                                                              /* New */
+    const chainId = await window.ethereum.request({                 /* New */
+      method: "eth_chainId",                                         /* New */
+    })
+
+    const _tokenBalance = await tokenContractInstance.methods.balanceOf(accounts[0]).call();
+    const tokenBalance = formatBalance(_tokenBalance);
+    console.log(tokenBalance, "tokenBalance")
+    setWallet({ accounts, Etherbalance, chainId, tokenBalance })                        /* Updated */
+  }                                                /* New */
+
+  const handleConnect = async () => {
+    let accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    })
+    updateWallet(accounts)
+  }
 
   return (
     <div className="token-game-container">
       <h1 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>SCROTO HUNT GAME</h1>
       <div className="button-container">
-        {!connected ? (
-          <button onClick={connectWallet}>Connect Wallet</button>
-        ) : (
+        {
+          hasProvider ? (
+            wallet.accounts.length > 0 ? (
+              // This block will be rendered if 'connected' is true
+              <p style={{ textAlign: "center" }}>You are connected to MetaMask.</p>
+            ) : (
+              // This block will be rendered if 'connected' is false
+              <button onClick={handleConnect}>Connect MetaMask</button>
+            )
+          ) : (
+            <a className="BuyVRT" href={metamaskUrl} target="_blank" rel="noopener noreferrer">
+              Please Install MetaMask
+            </a>
+          )
+        }
+        {wallet.accounts.length > 0 &&
           <div className="account-info">
-            <p className="account-title">Connected to Account: <b>{address}</b></p>
-            <p className="balance">Ether Balance: {web3Instance ? web3Instance.utils.fromWei(etherBalance, 'ether') : <span className="loading">Loading...</span>}</p>
-            <p className="balance">Token Balance: {web3Instance ? web3Instance.utils.fromWei(tokenBalance, 'ether') : <span className="loading">Loading...</span>}</p>
-            {tokenBalance > betAmount ? <button onClick={sendTransaction}>Scroto</button> :
+            <p className="balance">Bet Amount: {formatBalance(betAmount)}</p>
+            <p className="account-title">Connected to Account: <b>{wallet.accounts[0]}</b></p>
+            <p className="balance">Ether Balance: {wallet.Etherbalance}</p>
+            <p className="balance">Token Balance: {wallet.tokenBalance}</p>
+            <p>Hex ChainId: {wallet.chainId}</p>                       {/* New */}
+            <p>Numeric ChainId: {formatChainAsNum(wallet.chainId)}</p> {/* New */}
+            {parseInt(wallet.tokenBalance) > betAmount ? <button onClick={sendTransaction}>Scroto</button> :
               <a className="BuyVRT" href={uniswapUrl} target="_blank" rel="noopener noreferrer">Buy VRT</a>}
           </div>
-        )}
+        }
       </div>
     </div>
   );
