@@ -33,18 +33,18 @@ const GameComponent = () => {
 
     const userAccount = wallet.accounts[0];
 
-    // Create a contract instance
-    // gameContractInstance = new web3Instance.eth.Contract(CoinFlipGameABI, gameContractAddress);
+    // Get gas price from the network
+    const gasPrice = await web3Instance.eth.getGasPrice();
 
     try {
       const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
       if (betAmount > approvedAmount) {
-        const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount });
+        const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount, gasPrice: gasPrice + 2000000 });
         console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
       }
 
       // Send Token to Gameplay Function on Game Contract
-      const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: 3000000 });
+      const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: gasPrice + 2000000 });
       console.log('Transaction hash:', transactionResponse.transactionHash);
 
     } catch (error) {
