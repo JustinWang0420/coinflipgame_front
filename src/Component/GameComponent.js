@@ -34,7 +34,7 @@ const GameComponent = () => {
     const userAccount = wallet.accounts[0];
     const GamegasEstimate = await gameContractInstance.methods.playGame(userId).estimateGas({ from: userAccount });
     const TokengasEstimate = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).estimateGas({ from: userAccount });
-    
+
     // Get gas price from the network
     const gasPrice = await web3Instance.eth.getGasPrice();
     try {
