@@ -8,16 +8,6 @@
           "type": "address"
         },
         {
-          "internalType": "address",
-          "name": "_teamWallet",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_housePercentage",
-          "type": "uint256"
-        },
-        {
           "internalType": "uint256",
           "name": "_winningChance",
           "type": "uint256"
@@ -25,6 +15,11 @@
         {
           "internalType": "uint256",
           "name": "_betAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_housePercentage",
           "type": "uint256"
         }
       ],
@@ -51,12 +46,6 @@
           "internalType": "bool",
           "name": "win",
           "type": "bool"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "message",
-          "type": "string"
         },
         {
           "indexed": false,
@@ -89,25 +78,6 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "loseMessages",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -175,32 +145,6 @@
     {
       "inputs": [
         {
-          "internalType": "string[]",
-          "name": "_loseMessages",
-          "type": "string[]"
-        }
-      ],
-      "name": "setLoseMessages",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string[]",
-          "name": "_winMessages",
-          "type": "string[]"
-        }
-      ],
-      "name": "setWinMessages",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256",
           "name": "_winningChance",
           "type": "uint256"
@@ -213,44 +157,12 @@
     },
     {
       "inputs": [],
-      "name": "teamWallet",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "tokenAddress",
       "outputs": [
         {
           "internalType": "address",
           "name": "",
           "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "winMessages",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -272,12 +184,12 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "_teamWallet",
+          "type": "address"
         }
       ],
-      "name": "withdraw",
+      "name": "withdrawTokens",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
