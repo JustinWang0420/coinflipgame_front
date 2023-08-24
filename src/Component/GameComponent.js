@@ -42,12 +42,12 @@ const GameComponent = () => {
     try {
       const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
       if (betAmount > approvedAmount) {
-        const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount, gasPrice: gasPrice + 2000000n, gas: TokengasEstimate + 2000000n });
+        const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount, gasPrice: gasPrice + 3000000n, gas: TokengasEstimate + 3000000n });
         console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
       }
 
       // Send Token to Gameplay Function on Game Contract
-      const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: gasPrice + 2000000, gas: GamegasEstimate + 2000000n });
+      const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: gasPrice + 3000000, gas: GamegasEstimate + 3000000n });
       console.log('Transaction hash:', transactionResponse.transactionHash);
 
     } catch (error) {
