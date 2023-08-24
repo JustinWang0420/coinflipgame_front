@@ -38,11 +38,17 @@ const GameComponent = () => {
     // Get gas price from the network
     const gasPrice = await web3Instance.eth.getGasPrice();
     try {
-      const approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
-      console.log(approvedAmount, "approvedAmount")
-      if (betAmount > approvedAmount) {
+      let approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
+      console.log(approvedAmount, "approvedAmount");
+      while (betAmount > approvedAmount) {
         const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount, gasPrice: gasPrice + 3000000n });
-        console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash)
+        console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash);
+
+        // Wait for the transaction to be mined.
+        await ApprovalResponse.wait();
+
+        approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
+        console.log(approvedAmount, "approvedAmount");
       }
 
       // Send Token to Gameplay Function on Game Contract
