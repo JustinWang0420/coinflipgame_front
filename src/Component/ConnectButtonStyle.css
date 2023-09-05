@@ -1,0 +1,26 @@
+.accountOptions {
+    display: flex;
+    justify-content: space-between;
+    .profileImage {
+      margin-right: 8px;
+    }
+    .accountBtn {
+      margin-right: 12px;
+      border-radius: 12px;
+    }
+    .networkIcon {
+      border-radius: 12px;
+      padding: 8px;
+    }
+    .networkIcon img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+  
+  .connetWallet {
+    width: 180px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    border-radius: 8px;
+  }

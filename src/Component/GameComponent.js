@@ -3,11 +3,12 @@ import { useParams } from "react-router-dom";
 import { Web3 } from "web3";
 import detectEthereumProvider from '@metamask/detect-provider'
 import { formatBalance, formatChainAsNum } from './utils'
-
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import './styles.css'; // Make sure to import your CSS file
 
-const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.json")
-const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.json")
+
+const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.js")
+const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.js")
 
 const GameComponent = () => {
   const { userId } = useParams();
@@ -29,12 +30,11 @@ const GameComponent = () => {
   const metamaskUrl = 'https://metamask.io/download/';
 
   async function sendTransaction() {
+    console.log("tokenContractInstance : ", tokenContractInstance, "gameContractInstance : ", gameContractInstance)
     if (userId === 0) return;
-
     const userAccount = wallet.accounts[0];
     // const GamegasEstimate = await gameContractInstance.methods.playGame(userId).estimateGas({ from: userAccount });
     // const TokengasEstimate = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).estimateGas({ from: userAccount });
-
     // Get gas price from the network
     const gasPrice = await web3Instance.eth.getGasPrice();
     try {
@@ -43,14 +43,11 @@ const GameComponent = () => {
       while (betAmount > approvedAmount) {
         const ApprovalResponse = await tokenContractInstance.methods.approve(gameContractAddress, betAmount.toString()).send({ from: userAccount, gasPrice: gasPrice + 3000000n });
         console.log('Approve Transaction Hash:', ApprovalResponse.transactionHash);
-
         // Wait for the transaction to be mined.
         await ApprovalResponse.wait();
-
         approvedAmount = await tokenContractInstance.methods.allowance(userAccount, gameContractAddress).call();
         console.log(approvedAmount, "approvedAmount");
       }
-
       // Send Token to Gameplay Function on Game Contract
       const transactionResponse = await gameContractInstance.methods.playGame(userId).send({ from: userAccount, gasPrice: gasPrice + 3000000n });
       console.log('Transaction hash:', transactionResponse.transactionHash);
@@ -61,12 +58,13 @@ const GameComponent = () => {
   }
 
   useEffect(() => {
+
     async function getBetAmount() {
       console.log("getBetAmountValue")
       try {
         const betAmountValue = await gameContractInstance.methods.betAmount().call();
         setBetAmount(betAmountValue);
-        console.log(betAmountValue, "betAmountValue")
+        console.log(betAmount, "betAmountValue")
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -116,24 +114,36 @@ const GameComponent = () => {
     const chainId = await window.ethereum.request({                 /* New */
       method: "eth_chainId",                                         /* New */
     })
-
     const _tokenBalance = await tokenContractInstance.methods.balanceOf(accounts[0]).call();
     const tokenBalance = formatBalance(_tokenBalance);
-    console.log(tokenBalance, "tokenBalance")
-    setWallet({ accounts, Etherbalance, chainId, tokenBalance })                        /* Updated */
+    console.log("_tokenBalance : ", _tokenBalance, "   :::   ", tokenBalance, "tokenBalance")
+    setWallet({ accounts, Etherbalance, chainId, tokenBalance })
+    console.log("wallet : ", wallet);
+    /* Updated */
   }                                                /* New */
 
   const handleConnect = async () => {
     let accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
     })
+    console.log("accounts   :   ", accounts);
     updateWallet(accounts)
   }
+
 
   return (
     <div className="token-game-container">
       <h1 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>SCROTO HUNT GAME</h1>
       <div className="button-container">
+        {/* <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            padding: 12,
+          }}
+        >
+          <ConnectButton />
+        </div> */}
         {
           hasProvider ? (
             wallet.accounts.length > 0 ? (
