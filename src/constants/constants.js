@@ -76,6 +76,7 @@ export const LOCAL = {
 // Note Perp is not currently available on any testnet
 // Local chain testing is used for testing contract interactions but data fetched from live subgraphs
 export const OPTIMISM_CHAIN = IS_LOCAL_CHAIN ? LOCAL : chain.optimism
+export const Mainnet_CHAIN = IS_LOCAL_CHAIN ? LOCAL : chain.mainnet
 export const GOERLI_CHAIN = IS_LOCAL_CHAIN ? LOCAL : chain.goerli
 
 export const USDC_ADDRESS = {
