@@ -13,7 +13,7 @@ import {
   darkTheme,
   getDefaultWallets,
 } from "@rainbow-me/rainbowkit";
-import { ALCHEMY_ID, OPTIMISM_CHAIN, GOERLI_CHAIN } from "./constants/constants";
+import { ALCHEMY_ID, OPTIMISM_CHAIN, GOERLI_CHAIN, Mainnet_CHAIN } from "./constants/constants";
 import { publicProvider } from "wagmi/providers/public";
 import { merge } from "lodash";
 // import { RecoilRoot } from "recoil";
@@ -21,7 +21,7 @@ import { merge } from "lodash";
 // import { Home, PendingMotion, ViewBase } from "./views";
 
 const { chains, provider } = configureChains(
-  [GOERLI_CHAIN],
+  [Mainnet_CHAIN],
   [alchemyProvider({ apiKey: "D08vr46q29Hiqhw4A5mijhrsA9hgUNIZ" }), publicProvider()]
 );
 
