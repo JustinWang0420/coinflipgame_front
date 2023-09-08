@@ -13,11 +13,11 @@ const { createWalletClient, custom, createPublicClient, http, providers, Wallet 
 const { mainnet, goerli } = require('viem/chains');
 
 const walletClient = createWalletClient({
-    chain: goerli,
+    chain: mainnet,
     transport: custom(window.ethereum)
 });
 const publicClient = createPublicClient({
-    chain: goerli,
+    chain: mainnet,
     transport: http()
 });
 const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.js")
