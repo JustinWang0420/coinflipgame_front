@@ -84,16 +84,17 @@ const RainBow = () => {
                 account,
             });
             if (approveHash) {
-                await publicClient.waitForTransactionReceipt({
+                const hashC = await publicClient.waitForTransactionReceipt({
                     hash: approveHash,
                 })
-                walletClient.writeContract({
-                    address: gameContractAddress,
-                    abi: CoinFlipGameABI,
-                    functionName: "playGame",
-                    args: [userId],
-                    account,
-                });
+                if (hashC.status)
+                    walletClient.writeContract({
+                        address: gameContractAddress,
+                        abi: CoinFlipGameABI,
+                        functionName: "playGame",
+                        args: [userId],
+                        account,
+                    });
             }
         } catch (error) {
             console.log("ERROR:", error);
