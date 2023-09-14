@@ -1,0 +1,1 @@
+(self.webpackChunkcoinflipgame_frontend=self.webpackChunkcoinflipgame_frontend||[]).push([[563],{36563:()=>{}}]);

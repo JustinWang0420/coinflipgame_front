@@ -2,7 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-// import './polyfills';
+import { Provider } from 'react-redux';
+import store from './store/index'
 import reportWebVitals from './reportWebVitals';
 import { WagmiConfig, configureChains, createClient } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -16,39 +17,32 @@ import {
 import { ALCHEMY_ID, OPTIMISM_CHAIN, GOERLI_CHAIN, Mainnet_CHAIN } from "./constants/constants";
 import { publicProvider } from "wagmi/providers/public";
 import { merge } from "lodash";
-// import { RecoilRoot } from "recoil";
-
-// import { Home, PendingMotion, ViewBase } from "./views";
-
 const { chains, provider } = configureChains(
   [Mainnet_CHAIN],
   [alchemyProvider({ apiKey: "D08vr46q29Hiqhw4A5mijhrsA9hgUNIZ" }), publicProvider()]
 );
-
 const { connectors } = getDefaultWallets({
   appName: "Perpetual-lp-tool",
   chains,
 });
-
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
   provider,
 });
-
 const myTheme = merge(darkTheme(), {
   colors: {
     accentColor: "#1D4ED8",
   },
 });
-
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider theme={myTheme} chains={chains}>
-        <App />
+        <Provider store={store}>
+          <App />
+        </Provider>
       </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode >

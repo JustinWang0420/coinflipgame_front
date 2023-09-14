@@ -7,6 +7,8 @@ import { useParams } from "react-router-dom";
 import Web3 from "web3";
 import './styles.css'; // Make sure to import your CSS file
 import { formatBalance, formatChainAsNum } from './utils'
+import { useSelector, useDispatch } from 'react-redux'
+import { CSbetAmount, CStokenBalance } from '../reducers/counterSlice';
 
 const { createWalletClient, custom, createPublicClient, http, providers, Wallet } = require('viem');
 
@@ -28,6 +30,9 @@ const gameContractAddress = process.env.REACT_APP_GAME_ADDRESS;
 const uniswapUrl = 'https://app.uniswap.org/#/swap?outputCurrency=0xc32db1d3282e872d98f6437d3bcfa57801ca6d5c';
 
 const RainBow = () => {
+    const { SbetAmount, StokenBalance } = useSelector((state) => state.counter);
+    const dispatch = useDispatch();
+
     const { isConnected, address } = useAccount();
     const provider = walletClient;
     const Instance = new Web3(provider);
@@ -52,13 +57,17 @@ const RainBow = () => {
             betAmountValuePromise.then((betAmountValue) => {
                 const betAmountValueString = betAmountValue.toString();
                 // console.log("betamount ::: ", betAmountValueString);
-                setBetAmount(betAmountValueString);
+                dispatch(CSbetAmount(betAmountValueString));
+                // console.log("SbetAmount ::: ", SbetAmount, betAmountValueString)
+                setBetAmount(SbetAmount);
             });
             const _tokenBalance = tokenContractInstance.methods.balanceOf(address).call();
             _tokenBalance.then((tokenvalue) => {
                 const tokenamountValueString = tokenvalue.toString();
                 // console.log("_tokenbalance ::: ", tokenamountValueString)
-                setTokenBalence(tokenamountValueString);
+                dispatch(CStokenBalance(tokenamountValueString));
+                // console.log("StokenBalance ::: ", StokenBalance, tokenamountValueString)
+                setTokenBalence(StokenBalance);
             })
             // console.log("_tokenbalance ::: ", _tokenBalance);
             // console.log("provider", Instance);
@@ -124,10 +133,10 @@ const RainBow = () => {
             <ConnectButton />
             {address && (
                 <>
-                    <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Bet Amount:{betAmount / 10 ** 18}</p>
-                    {!parseInt(tokenBalance) ? <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Token Amount : 0</p> : <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Token Amount : {tokenBalance / 10 ** 18}</p>}
+                    <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Bet Amount:{SbetAmount / 10 ** 18}</p>
+                    {!parseInt(StokenBalance) ? <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Token Amount : 0</p> : <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Token Amount : {StokenBalance / 10 ** 18}</p>}
 
-                    {parseInt(tokenBalance) > formatBalance(betAmount) ? <Button onClick={Transaction} variant="outline" color="black" style={{ backgroundColor: 'black' }}>Scroto</Button> :
+                    {parseInt(StokenBalance) > formatBalance(SbetAmount) ? <Button onClick={Transaction} variant="outline" color="black" style={{ backgroundColor: 'black' }}>Scroto</Button> :
                         <a href={uniswapUrl} style={{ color: "#ce30cf" }} target="_blank">
                             <Button variant="outline" color="black" style={{ backgroundColor: 'black' }}>
                                 Buy VRT
