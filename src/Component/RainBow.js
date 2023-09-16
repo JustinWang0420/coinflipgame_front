@@ -77,19 +77,24 @@ const RainBow = () => {
     async function Transaction() {
         var allowanceval;
         const account = getAccount(clientAddress);
-        // console.log(account);
-        // return;
         const spenderAddress = gameContractAddress;
         const amount = betAmount
-        const approvedAmountPromise = tokenContractInstance.methods.allowance(address, gameContractAddress).call();
-        approvedAmountPromise.then((approvedAmountvalue) => {
-            const approvedAmountString = approvedAmountvalue.toString();
-            allowanceval = approvedAmountvalue.toString();
-            // console.log("approvedAmountString ::: ", approvedAmountString, " betAmountValueString ::: ", betAmount);
-            setApprovedAmount(approvedAmountString);
-            console.log("approvedAmount ::: ", approvedAmount)
-        });
+        try {
+            const approvedAmountPromise = tokenContractInstance.methods.allowance(address, gameContractAddress).call();
+            approvedAmountPromise.then((approvedAmountvalue) => {
+                const approvedAmountString = approvedAmountvalue.toString();
+                allowanceval = approvedAmountvalue.toString();
+                // console.log("approvedAmountString ::: ", approvedAmountString, " betAmountValueString ::: ", betAmount);
+                setApprovedAmount(approvedAmountString);
+                console.log("approvedAmount ::: ", approvedAmount)
+            });
+        }
+        catch (error) {
+            console.log("Error ::", error)
+        }
         if (allowanceval >= betAmount) {
+            // console.log(allowanceval);
+            // return
             walletClient.writeContract({
                 address: gameContractAddress,
                 abi: CoinFlipGameABI,
@@ -99,6 +104,8 @@ const RainBow = () => {
             });
         }
         else {
+            // console.log(allowanceval);
+            // return;
             try {
                 const approveHash = await walletClient.writeContract({
                     address: tokenContractAddress,
@@ -124,8 +131,6 @@ const RainBow = () => {
                 console.log("ERROR:", error);
             }
         }
-        // return;
-
     }
     return (
         <div className="token-game-container" >
