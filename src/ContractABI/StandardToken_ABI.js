@@ -1,4 +1,4 @@
-export const StandardTokenABI =[
+export const StandardTokenABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",

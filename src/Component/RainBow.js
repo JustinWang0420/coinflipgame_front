@@ -8,12 +8,10 @@ import Web3 from "web3";
 import './styles.css'; // Make sure to import your CSS file
 import { formatBalance, formatChainAsNum } from './utils'
 import { useSelector, useDispatch } from 'react-redux'
-import { CSbetAmount, CStokenBalance } from '../reducers/counterSlice';
-
+import { CSbetAmount, CStokenBalance, CSapproveamount } from '../reducers/counterSlice';
+import { local } from "web3modal";
 const { createWalletClient, custom, createPublicClient, http, providers, Wallet } = require('viem');
-
 const { mainnet, goerli } = require('viem/chains');
-
 const walletClient = createWalletClient({
     chain: mainnet,
     transport: custom(window.ethereum)
@@ -24,13 +22,11 @@ const publicClient = createPublicClient({
 });
 const { CoinFlipGameABI } = require("../ContractABI/CoinFlipGameContract_ABI.js")
 const { StandardTokenABI } = require("../ContractABI/StandardToken_ABI.js")
-
 const tokenContractAddress = process.env.REACT_APP_TOKEN_ADDRESS;
 const gameContractAddress = process.env.REACT_APP_GAME_ADDRESS;
 const uniswapUrl = 'https://app.uniswap.org/#/swap?outputCurrency=0xc32db1d3282e872d98f6437d3bcfa57801ca6d5c';
-
 const RainBow = () => {
-    const { SbetAmount, StokenBalance } = useSelector((state) => state.counter);
+    const { SbetAmount, StokenBalance, Sapproveamount } = useSelector((state) => state.counter);
     const dispatch = useDispatch();
 
     const { isConnected, address } = useAccount();
@@ -52,61 +48,50 @@ const RainBow = () => {
         }
         fetchAddresses();
         if (address) {
-            const betAmountValuePromise = gameContractInstance.methods.betAmount().call();
-            // console.log("betAmountValuePromise :::: ", betAmountValuePromise)
-            betAmountValuePromise.then((betAmountValue) => {
-                const betAmountValueString = betAmountValue.toString();
-                // console.log("betamount ::: ", betAmountValueString);
-                dispatch(CSbetAmount(betAmountValueString));
-                // console.log("SbetAmount ::: ", SbetAmount, betAmountValueString)
-                setBetAmount(SbetAmount);
-            });
             const _tokenBalance = tokenContractInstance.methods.balanceOf(address).call();
             _tokenBalance.then((tokenvalue) => {
                 const tokenamountValueString = tokenvalue.toString();
-                // console.log("_tokenbalance ::: ", tokenamountValueString)
                 dispatch(CStokenBalance(tokenamountValueString));
-                // console.log("StokenBalance ::: ", StokenBalance, tokenamountValueString)
-                setTokenBalence(StokenBalance);
+                setTokenBalence(tokenamountValueString);
             })
-            // console.log("_tokenbalance ::: ", _tokenBalance);
-            // console.log("provider", Instance);
-            // console.log(userId);
         }
     }, []);
+    useEffect(() => {
+        BetAmountVal();
+        ApproveVal();
+    }, [])
+    async function ApproveVal() {
+        const approvedAmountPromise = tokenContractInstance.methods.allowance(address, gameContractAddress).call();
+        approvedAmountPromise.then((approvedAmountvalue) => {
+            const approvedAmountString = approvedAmountvalue.toString();
+            setApprovedAmount(approvedAmountString);
+            dispatch(CSapproveamount(approvedAmountString));
+        });
+    }
+    async function BetAmountVal() {
+        const betAmountValuePromise = gameContractInstance.methods.betAmount().call();
+        betAmountValuePromise.then((betAmountValue) => {
+            const betAmountValueString = betAmountValue.toString();
+            dispatch(CSbetAmount(betAmountValueString));
+            setBetAmount(betAmountValueString);
+        });
+    }
     async function Transaction() {
-        var allowanceval;
         const account = getAccount(clientAddress);
         const spenderAddress = gameContractAddress;
-        const amount = betAmount
+        const amount = betAmount;
         try {
-            const approvedAmountPromise = tokenContractInstance.methods.allowance(address, gameContractAddress).call();
-            approvedAmountPromise.then((approvedAmountvalue) => {
-                const approvedAmountString = approvedAmountvalue.toString();
-                allowanceval = approvedAmountvalue.toString();
-                // console.log("approvedAmountString ::: ", approvedAmountString, " betAmountValueString ::: ", betAmount);
-                setApprovedAmount(approvedAmountString);
-                console.log("approvedAmount ::: ", approvedAmount)
-            });
-        }
-        catch (error) {
-            console.log("Error ::", error)
-        }
-        if (allowanceval >= betAmount) {
-            // console.log(allowanceval);
-            // return
-            walletClient.writeContract({
-                address: gameContractAddress,
-                abi: CoinFlipGameABI,
-                functionName: "playGame",
-                args: [userId],
-                account,
-            });
-        }
-        else {
-            // console.log(allowanceval);
-            // return;
-            try {
+            const approvedAmountPromise = await tokenContractInstance.methods.allowance(address, gameContractAddress).call();
+            if (approvedAmountPromise >= betAmount) {
+                await walletClient.writeContract({
+                    address: gameContractAddress,
+                    abi: CoinFlipGameABI,
+                    functionName: "playGame",
+                    args: [userId],
+                    account,
+                });
+            }
+            else {
                 const approveHash = await walletClient.writeContract({
                     address: tokenContractAddress,
                     abi: StandardTokenABI,
@@ -118,20 +103,30 @@ const RainBow = () => {
                     const hashC = await publicClient.waitForTransactionReceipt({
                         hash: approveHash,
                     })
-                    if (hashC.status)
-                        walletClient.writeContract({
-                            address: gameContractAddress,
-                            abi: CoinFlipGameABI,
-                            functionName: "playGame",
-                            args: [userId],
-                            account,
-                        });
+                    if (hashC.status) {
+                        try {
+                            await walletClient.writeContract({
+                                address: gameContractAddress,
+                                abi: CoinFlipGameABI,
+                                functionName: "playGame",
+                                args: [userId],
+                                account,
+                            });
+                        }
+                        catch (err) {
+                            console.log("ERR", err)
+                        }
+                        console.log("betamount :::", betAmount);
+                        console.log("approvedAmount ::: ", localStorage.getItem('allowanceValue'));
+                    }
                 }
-            } catch (error) {
-                console.log("ERROR:", error);
             }
         }
+        catch (err) {
+            console.log(err)
+        }
     }
+
     return (
         <div className="token-game-container" >
             <h1 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>SCROTO HUNT GAME</h1>
@@ -140,13 +135,11 @@ const RainBow = () => {
                 <>
                     <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Bet Amount:{SbetAmount / 10 ** 18}</p>
                     {!parseInt(StokenBalance) ? <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Token Amount : 0</p> : <p className="balance" style={{ color: '#ce30cf', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' }}>Token Amount : {StokenBalance / 10 ** 18}</p>}
-
                     {parseInt(StokenBalance) > formatBalance(SbetAmount) ? <Button onClick={Transaction} variant="outline" color="black" style={{ backgroundColor: 'black' }}>Scroto</Button> :
                         <a href={uniswapUrl} style={{ color: "#ce30cf" }} target="_blank">
                             <Button variant="outline" color="black" style={{ backgroundColor: 'black' }}>
                                 Buy VRT
                             </Button>
-
                         </a>}
                 </>
             )}

@@ -4,6 +4,7 @@ export const counterSlice = createSlice({
   initialState: {
     SbetAmount: 0,
     StokenBalance: 0,
+    Sapproveamount: 0
   },
   reducers: {
     CSbetAmount: (state, action) => {
@@ -12,7 +13,10 @@ export const counterSlice = createSlice({
     CStokenBalance: (state, action) => {
       state.StokenBalance = action.payload
     },
+    CSapproveamount: (state, action) => {
+      state.Sapproveamount = action.payload
+    },
   },
 })
-export const { CSbetAmount, CStokenBalance } = counterSlice.actions
+export const { CSbetAmount, CStokenBalance, CSapproveamount } = counterSlice.actions
 export default counterSlice.reducer
