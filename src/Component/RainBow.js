@@ -9,7 +9,6 @@ import './styles.css'; // Make sure to import your CSS file
 import { formatBalance, formatChainAsNum } from './utils'
 import { useSelector, useDispatch } from 'react-redux'
 import { CSbetAmount, CStokenBalance, CSapproveamount } from '../reducers/counterSlice';
-import { local } from "web3modal";
 const { createWalletClient, custom, createPublicClient, http, providers, Wallet } = require('viem');
 const { mainnet, goerli } = require('viem/chains');
 const walletClient = createWalletClient({
@@ -48,18 +47,19 @@ const RainBow = () => {
         }
         fetchAddresses();
         if (address) {
-            const _tokenBalance = tokenContractInstance.methods.balanceOf(address).call();
-            _tokenBalance.then((tokenvalue) => {
-                const tokenamountValueString = tokenvalue.toString();
-                dispatch(CStokenBalance(tokenamountValueString));
-                setTokenBalence(tokenamountValueString);
-            })
+            TokenBalce();
+            BetAmountVal();
+            ApproveVal();
         }
     }, []);
-    useEffect(() => {
-        BetAmountVal();
-        ApproveVal();
-    }, [])
+    async function TokenBalce() {
+        const _tokenBalance = tokenContractInstance.methods.balanceOf(address).call();
+        _tokenBalance.then((tokenvalue) => {
+            const tokenamountValueString = tokenvalue.toString();
+            dispatch(CStokenBalance(tokenamountValueString));
+            setTokenBalence(tokenamountValueString);
+        })
+    }
     async function ApproveVal() {
         const approvedAmountPromise = tokenContractInstance.methods.allowance(address, gameContractAddress).call();
         approvedAmountPromise.then((approvedAmountvalue) => {
@@ -90,6 +90,7 @@ const RainBow = () => {
                     args: [userId],
                     account,
                 });
+
             }
             else {
                 const approveHash = await walletClient.writeContract({
@@ -125,6 +126,7 @@ const RainBow = () => {
         catch (err) {
             console.log(err)
         }
+        TokenBalce();
     }
 
     return (
